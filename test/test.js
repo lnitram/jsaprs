@@ -24,6 +24,8 @@ describe('Parse MIC-E position message', function(){
         assert.equal(53.569833333333335,m.latitude);
         assert.equal(9.713166666666666,m.longitude);
         assert.equal("M2: In Service",m.mic_e_message);
+        assert.equal("-",m.symbol);
+        assert.equal("/",m.symbol_table);
     });
 
    it("Test Mic-E with speed and course", function(){
