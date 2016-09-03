@@ -110,7 +110,6 @@ function MICE() {
         m.mic_e_message = this.getMessage(m.destination);
         m.speed = this.getSpeed(info);
         m.course = this.getCourse(info);
-        console.log(m);
         return m;
     };
 }
