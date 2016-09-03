@@ -38,7 +38,8 @@ function MICE() {
     this.getLonOffset = function(dest) {
         if (("0123456789L").indexOf(dest[4]) > -1) return 0;
         if (("PQRSTUVWXYZ").indexOf(dest[4]) > -1) return 100;
-    }
+    };
+
 
     this.getLongitude = function(dest,info) {
         var lonOffset = this.getLonOffset(dest);
@@ -63,6 +64,29 @@ function MICE() {
         if ("0123456789L".indexOf(dest[3]) > -1) lon = lon * -1;
         if ("PQRSTUVWXYZ".indexOf(dest[3]) > -1) lon = lon * 1;
         return lon;
+    };
+
+
+    this.getSpeed = function(info) {
+        var sp = info[4].charCodeAt(0);
+        var dc = info[5].charCodeAt(0);
+        var se = info[6].charCodeAt(0);
+
+        var speed = (sp-28)*10 + (dc-28)/10;
+        if (speed >= 800) speed = speed - 800;
+        return speed;
+    };
+    
+    this.getCourse = function(info) {
+        var sp = info[4].charCodeAt(0);
+        var dc = info[5].charCodeAt(0);
+        var se = info[6].charCodeAt(0);
+
+        var course = ((dc-28)%10) * 100;
+        course = course + (se-28);
+        if (course >= 400) course -= 400;
+        return course;
+
     }
 
     this.getMessageBit = function(c) {
@@ -84,8 +108,11 @@ function MICE() {
         m.latitude = this.getLatitude(m.destination);
         m.longitude = this.getLongitude(m.destination,info);
         m.mic_e_message = this.getMessage(m.destination);
+        m.speed = this.getSpeed(info);
+        m.course = this.getCourse(info);
+        console.log(m);
         return m;
-    }
+    };
 }
 
 function APRS(message) {
