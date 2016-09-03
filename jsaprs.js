@@ -97,10 +97,12 @@ function MICE() {
 
     this.getMessage = function(dest){
         return this.MESSAGES['' + this.getMessageBit(dest[0]) + this.getMessageBit(dest[1]) + this.getMessageBit(dest[2])];
+    };
+
+    this.getAltitude = function (statusText) {
+        return 0;
     }; 
 
-
-    
 
     this.parse = function(m){
         var info = m.payload.substring(0,9);
@@ -112,6 +114,13 @@ function MICE() {
         m.course = this.getCourse(info);
         m.symbol = info[7];
         m.symbol_table = info[8];
+        if ("`'\x1d".indexOf(info[9]) > -1) m.telemetry = true;
+        var statusText = m.payload.substring(10);
+        if (statusText[3] === '}') {
+            m.altitude = this.getAltitude(statusText);
+            statusText = statusText.substring(4);
+        }
+        m.statusText = statusText;
         return m;
     };
 }
