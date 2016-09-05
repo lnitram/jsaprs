@@ -45,6 +45,13 @@ describe('Parse Message', function() {
    it ("Test message", function() {
        var aprs = new jsaprs.APRS(msg1);
        var m = aprs.parse();
+       assert.equal("WD9EWK-9",m.source);
+       assert.equal("APK003,BWMTN,WIDE1*,WIDE2-2,qAR,KL1SF-10",m.path);
+       assert.equal("APK003",m.destination);
+       assert.equal("Message", m.type);
+       assert.equal("DK3ML", m.recipient);
+       assert.equal("Hello from northern Arizona ", m.text);
+       assert.equal("88",m.msgId);
    });
 
 });

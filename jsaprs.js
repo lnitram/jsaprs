@@ -176,6 +176,14 @@ function APRS(message) {
         return types[c];
     }
 
+    this.parseMessage = function(m) {
+        var info = m.info.substring(1);
+        m.recipient = info.substring(0,9).trim();
+        m.text = info.substring(10).split("{")[0];
+        m.msgId = info.substring(10).split("{")[1];
+        return m;
+    }
+
     this.parse = function() {
       var m = {}
       m.raw = this.raw;
@@ -188,6 +196,8 @@ function APRS(message) {
       var j = m.type.indexOf("MIC-E");
       if (m.type.indexOf('MIC-E') > -1) {
           m = this.parseMicE(m);
+      } else if (m.type === 'Message') {
+         m = this.parseMessage(m);
       }
       return m;
     };
