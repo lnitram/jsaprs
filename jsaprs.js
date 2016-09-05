@@ -105,8 +105,8 @@ function MICE() {
 
 
     this.parse = function(m){
-        var info = m.payload.substring(0,9);
-        m.datatype = this.getDataType(info);
+        var info = m.info.substring(0,9);
+        m.mice_type = this.getDataType(info);
         m.latitude = this.getLatitude(m.destination);
         m.longitude = this.getLongitude(m.destination,info);
         m.mic_e_message = this.getMessage(m.destination);
@@ -115,7 +115,7 @@ function MICE() {
         m.symbol = info[7];
         m.symbol_table = info[8];
         if ("`'\x1d".indexOf(info[9]) > -1) m.telemetry = true;
-        var statusText = m.payload.substring(10);
+        var statusText = m.info.substring(10);
         if (statusText[3] === '}') {
             m.altitude = this.getAltitude(statusText);
             statusText = statusText.substring(4);
@@ -137,15 +137,44 @@ function APRS(message) {
     };
 
     this.parseMicE = function(m) {
-        
         var mic_e = new MICE();
         m = mic_e.parse(m);
-      
- //       m.latitude = getLatitude(m.destination);
-   //     m.longitude = getLongitude(m.destination, mice_info);
-    //    m.msg = getMessage(m.destination);
         return m;
     };
+
+    this.getType = function(c) {
+        var types = {
+            '0x1c':"Current MIC-E Data (Rev 0 beta)",
+            '0x1d':"Old MIC-E Data (Rev 0 beta)",
+            '!':"Position without timestamp (no APRS messaging), or Ultimeter 2000 WX Station",
+            '#':"Peet Bros U-II Weather Station",
+            '$':"Raw GPS data or Ultimeter 2000",
+            '%':"Agrelo DFJr / MicroFinder",
+            '&':"[Reserved — Map Feature]",
+            "'":"Old MIC-E Data (but Current data for TM-D700)",
+            ")":"Item",
+            "*":"Peet Bros U-II Weather Station",
+            "+":"[Reserved — Shelter data with time]",
+            ",":"Invalid data or test data",
+            ".":"[Reserved — Space weather]",
+            "/":"Position with timestamp (no APRS messaging)",
+            ":":"Message",
+            ";":"Object",
+            "<":"Station Capabilities",
+            "=":"Position without timestamp (with APRS messaging)",
+            ">":"Status",
+            "?":"Query",
+            "@":"Position with timestamp (with APRS messaging)",
+            "T":"Telemetry data",
+            "[":"Maidenhead grid locator beacon (obsolete)",
+            "_":"Weather Report (without position)",
+            "`":"Current MIC-E Data (not used in TM-D700)",
+            "{":"User-Defined APRS packet format",
+            "}":"Third-party traffic"
+            
+        }
+        return types[c];
+    }
 
     this.parse = function() {
       var m = {}
@@ -153,9 +182,11 @@ function APRS(message) {
       m.source = this.getSource();
       m.path = this.getPath();
       m.destination = m.path.split(",")[0];
-      m.type = m.destination.startsWith("AP")?"APRS":"MIC-E";
-      m.payload =  m.raw.split(":")[1];
-      if (m.type === "MIC-E") {
+      var i = m.raw.indexOf(":");
+      m.info = m.raw.substring(i+1);
+      m.type = this.getType(m.info[0]);
+      var j = m.type.indexOf("MIC-E");
+      if (m.type.indexOf('MIC-E') > -1) {
           m = this.parseMicE(m);
       }
       return m;
