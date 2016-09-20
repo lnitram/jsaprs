@@ -16,7 +16,6 @@ describe('Parse MIC-E position message', function(){
         assert.equal("Hallo Welt",aprs.raw);
     });
 
-
     it("Test Mic-E position message", function(){
         var aprs = new jsaprs.APRS(m1);
         var m = aprs.parse();
@@ -30,6 +29,7 @@ describe('Parse MIC-E position message', function(){
         assert.equal("M2: In Service",m.mic_e_message);
         assert.equal("-",m.symbol);
         assert.equal("/",m.symbol_table);
+        console.log(m);
     });
 
    it("Test Mic-E with speed and course", function(){
@@ -52,6 +52,12 @@ describe('Parse Message', function() {
        assert.equal("DK3ML", m.recipient);
        assert.equal("Hello from northern Arizona ", m.text);
        assert.equal("88",m.msgId);
+   });
+
+   it ("", function() {
+       var aprs = new jsaprs.APRS(msg1);
+       var m = aprs.parse();
+       console.log(m);
    });
 
 });
