@@ -1,3 +1,56 @@
+
+function PosTsMsg() {
+
+// raw: 'DF8LJM-9>APX207,DB0HHN*,DB0ELB*,WIDE2*:@251727//3;D7Q&{ijbFCJens, with Raspberry Pi+XASTIR+THD7E',
+
+    this.decodePosX = function(compressedLon) {
+       var x1 = compressedLon.charCodeAt(0) - 33;
+       var x2 = compressedLon.charCodeAt(1) - 33;
+       var x3 = compressedLon.charCodeAt(2) - 33;
+       var x4 = compressedLon.charCodeAt(3) - 33;
+       return lon = -180 + (x1*91*91*91 + x2*91*91 + x3*91 + x4)/190463;
+    };
+
+    this.decodePosY = function(compressedLat) {
+       var y1 = compressedLat.charCodeAt(0) - 33;
+       var y2 = compressedLat.charCodeAt(1) - 33;
+       var y3 = compressedLat.charCodeAt(2) - 33;
+       var y4 = compressedLat.charCodeAt(3) - 33;
+       return 90 - (y1*91*91*91 + y2*91*91 + y3*91 + y4)/380926;
+    };
+
+
+    this.parse = function(m){
+        var timestamp = m.info.substring(1,8);
+        m.timestamp = timestamp;
+
+        //Check if compressed
+        if (("/").indexOf(m.info[8]) > -1) {
+          m.symbolTableIdentifier = m.info[8];
+          var latCompressed = m.info.substring(9,13);
+          var lonCompressed = m.info.substring(13,17);
+          m.symbolCode = m.info[17];
+          m.cs = m.info.substring(18,20);
+          m.compressionTypeIndicator = m.info[20];
+          m.lon = this.decodePosX(lonCompressed);
+          m.lat = this.decodePosY(latCompressed);
+          var c = m.info[18].charCodeAt(0) - 33;
+          var s = m.info[19].charCodeAt(0) - 33;
+          if (m.info[18] === '{') {
+              m.range = 2 * Math.pow(1.08,s);
+          }
+          else if (c < 90) {
+              m.course = c * 4;
+              m.speed = Math.pow(1.08,s) - 1;
+          }
+          m.statusText = m.info.substring(21);
+        }
+        return m;
+    };
+
+
+}
+
 function MICE() {
 
     this.T = {
@@ -136,11 +189,6 @@ function APRS(message) {
       return this.raw.split(">")[1].split(":")[0];
     };
 
-    this.parseMicE = function(m) {
-        var mic_e = new MICE();
-        m = mic_e.parse(m);
-        return m;
-    };
 
     this.getType = function(c) {
         var types = {
@@ -195,9 +243,13 @@ function APRS(message) {
       m.type = this.getType(m.info[0]);
       var j = m.type.indexOf("MIC-E");
       if (m.type.indexOf('MIC-E') > -1) {
-          m = this.parseMicE(m);
+          var mic_e = new MICE();
+          m = mic_e.parse(m);
       } else if (m.type === 'Message') {
          m = this.parseMessage(m);
+      } else if (m.type === 'Position with timestamp (with APRS messaging)') {
+         var posTsMsg = new PosTsMsg();
+         m = posTsMsg.parse(m);
       }
       return m;
     };

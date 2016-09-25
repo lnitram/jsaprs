@@ -29,7 +29,6 @@ describe('Parse MIC-E position message', function(){
         assert.equal("M2: In Service",m.mic_e_message);
         assert.equal("-",m.symbol);
         assert.equal("/",m.symbol_table);
-        console.log(m);
     });
 
    it("Test Mic-E with speed and course", function(){
@@ -40,8 +39,8 @@ describe('Parse MIC-E position message', function(){
 
 });
 
-describe('Parse Message', function() {
 
+describe('Parse Message', function() {
    it ("Test message", function() {
        var aprs = new jsaprs.APRS(msg1);
        var m = aprs.parse();
@@ -57,8 +56,59 @@ describe('Parse Message', function() {
    it ("", function() {
        var aprs = new jsaprs.APRS(msg1);
        var m = aprs.parse();
-       console.log(m);
    });
 
 });
+
+
+describe('All messages', function() {
+    it ("Position with timestamp (with APRS messaging)", function() {
+        var msg = "DF8LJM-9>APX207,DB0HHN*,DB0ELB*,WIDE2*:@251727//3;D7Q&{ijbFCJens, with Raspberry Pi+XASTIR+THD7E";
+        var aprs = new jsaprs.APRS(msg);
+        var m = aprs.parse();
+        assert.equal(msg,m.raw);
+        assert.equal("DF8LJM-9",m.source);
+        assert.equal("APX207,DB0HHN*,DB0ELB*,WIDE2*",m.path);
+        assert.equal("APX207",m.destination);
+        assert.equal("@251727//3;D7Q&{ijbFCJens, with Raspberry Pi+XASTIR+THD7E",m.info);
+        assert.equal("Position with timestamp (with APRS messaging)",m.type);
+        assert.equal("251727/",m.timestamp);
+        assert.equal("/",m.symbolTableIdentifier);
+        assert.equal("j",m.symbolCode);
+        assert.equal(10.173813286570095,m.lon);
+        assert.equal(53.817667998508895,m.lat);
+        assert.equal(260,m.course);
+        assert.equal(16.245625584895503,m.speed);
+        assert.equal("Jens, with Raspberry Pi+XASTIR+THD7E",m.statusText);
+    });
+
+    it ("No 002", function() {
+    });
+
+    it ("No 003", function() {
+    });
+
+    it ("No 004", function() {
+    });
+
+    it ("No 005", function() {
+    });
+
+    it ("No 006", function() {
+    });
+
+    it ("No 006", function() {
+    });
+
+    it ("No 007", function() {
+    });
+
+    it ("No 008", function() {
+    });
+
+    it ("No 009", function() {
+    });
+
+});
+
 
